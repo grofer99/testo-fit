@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Testo Fit">
+    <meta name="apple-mobile-web-app-title" content="Testo Fit">
+    <title>Testo Fit | Antrenman & Gelişim Takibi</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        surface: {
+                            50: '#f4fbfc',
+                            100: '#ffffff',
+                            200: '#eaf6f8',
+                            300: '#d5eef2',
+                        },
+                        brand: {
+                            turq: '#06b6d4',
+                            turqDark: '#0891b2',
+                            teal: '#14b8a6',
+                            tealDark: '#0d9488'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Mobil uygulama hissi için temel sıfırlamalar */
+        * {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        input, textarea, select {
+            user-select: auto;
+        }
+        body {
+            background-color: #f4fbfc;
+            color: #0f172a;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            padding-bottom: 88px; /* Alt navigasyon boşluğu */
+        }
+        /* Özel ince kaydırma çubuğu */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Yumuşak geçiş animasyonları */
+        .tab-content {
+            animation: fadeIn 0.2s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* AI PT sohbet alanı düzeni */
+        .ai-chat-scroll {
+            scroll-behavior: smooth;
+        }
+        .ai-msg-enter {
+            animation: msgPop 0.2s ease-out;
+        }
+        @keyframes msgPop {
+            from { opacity: 0; transform: translateY(6px) scale(0.99); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        /* Modal Arka Plan Animasyonu */
+        .modal-backdrop {
+            animation: backdropFade 0.18s ease-out;
+        }
+        @keyframes backdropFade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-cyan-500 selection:text-white">
+
+    <!-- ÜST BAR (HEADER) -->
+    <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-cyan-100 px-4 py-3 flex items-center justify-between shadow-sm shadow-cyan-900/5">
+        <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center shadow-md shadow-cyan-500/25">
+                <i data-lucide="dumbbell" class="w-5 h-5 text-white"></i>
+            </div>
+            <div>
+                <h1 class="font-extrabold text-lg tracking-tight leading-none text-slate-900">Testo <span class="text-cyan-600">Fit</span></h1>
+                <p id="header-subtitle" class="text-[11px] text-slate-500 font-medium mt-0.5">Haftalık Program & Gelişim</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <button onclick="openAiKeyModal()" class="p-2.5 rounded-xl bg-cyan-50 hover:bg-cyan-100 text-cyan-700 border border-cyan-200/80 transition active:scale-95 flex items-center gap-1.5 text-xs font-semibold" title="Gemini AI PT API Anahtarı">
+                <i data-lucide="key-round" class="w-4 h-4"></i>
+                <span id="ai-key-status-badge" class="hidden sm:inline">AI Ayar</span>
+            </button>
+            <button onclick="openModal('apk-modal')" class="p-2.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200/80 transition active:scale-95 flex items-center gap-1.5 text-xs font-semibold" title="APK & Kurulum Rehberi">
+                <i data-lucide="smartphone" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">APK Kurulum</span>
+            </button>
+            <button onclick="openModal('settings-modal')" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 transition active:scale-95" title="Yedekle & Ayarlar">
+                <i data-lucide="settings" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- BİLDİRİM TOAST MESAJI -->
+    <div id="toast-container" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 pointer-events-none w-[90%] max-w-sm flex flex-col gap-2"></div>
+
+    <!-- ANA İÇERİK ALANI -->
+    <main class="max-w-lg mx-auto px-4 pt-4">
+
+        <!-- ========================================== -->
+        <!-- 1. SEKME: HAFTALIK ANTRENMAN PROGRAMI      -->
+        <!-- ========================================== -->
+        <section id="tab-workout" class="tab-content space-y-4">
+            <!-- Gün Seçici Şerit -->
+            <div class="bg-white p-1.5 rounded-2xl border border-cyan-100 shadow-sm grid grid-cols-7 gap-1" id="day-selector">
+                <!-- JS ile doldurulacak -->
+            </div>
+
+            <!-- Seçili Gün Başlık & Bölge Kartı -->
+            <div class="bg-gradient-to-br from-white via-white to-cyan-50/80 rounded-2xl p-4 border border-cyan-100 shadow-sm relative overflow-hidden">
+                <div class="absolute -right-6 -top-6 w-24 h-24 bg-cyan-400/15 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="flex items-start justify-between gap-2">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2">
+                            <span id="selected-day-name" class="text-xs font-bold uppercase tracking-wider text-cyan-700 bg-cyan-100/80 px-2.5 py-0.5 rounded-md border border-cyan-200">Pazartesi</span>
+                            <span id="day-progress-badge" class="text-xs font-semibold text-slate-500">0/0 Tamamlandı</span>
+                        </div>
+                        <div class="mt-2 flex items-center gap-2">
+                            <h2 id="selected-day-focus" class="text-lg font-bold text-slate-900 leading-tight">Göğüs & Arka Kol</h2>
+                            <button onclick="openEditFocusModal()" class="p-1.5 rounded-lg bg-cyan-50 hover:bg-cyan-100 text-cyan-700 transition active:scale-95" title="Bölge Adını Düzenle">
+                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button onclick="resetDayCompletion()" class="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-500 hover:text-slate-800 border border-slate-200 text-xs flex items-center gap-1 transition active:scale-95" title="Günün tamamlanma tiklerini sıfırla">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                        <span>Sıfırla</span>
+                    </button>
+                </div>
+
+                <!-- İlerleme Çubuğu -->
+                <div class="mt-3 w-full bg-cyan-100/70 h-2 rounded-full overflow-hidden">
+                    <div id="day-progress-bar" class="bg-gradient-to-r from-cyan-500 to-teal-500 h-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Hareket Ekle Butonu ve Şablon Seçici -->
+            <div class="flex gap-2">
+                <button onclick="openExerciseModal()" class="flex-1 bg-gradient-to-r from-cyan-600 to-teal-500 hover:from-cyan-500 hover:to-teal-400 text-white font-semibold py-3 px-4 rounded-xl shadow-md shadow-cyan-500/20 flex items-center justify-center gap-2 transition active:scale-[0.98]">
+                    <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                    <span>Hareket Ekle</span>
+                </button>
+                <button onclick="openModal('template-modal')" class="bg-white hover:bg-cyan-50 text-slate-700 font-semibold py-3 px-4 rounded-xl border border-cyan-200 shadow-sm flex items-center justify-center gap-2 transition active:scale-[0.98]">
+                    <i data-lucide="layout-template" class="w-5 h-5 text-cyan-600"></i>
+                    <span>Şablonlar</span>
+                </button>
+            </div>
+
+            <!-- Egzersiz Listesi -->
+            <div id="exercise-list" class="space-y-3 pb-4">
+                <!-- JS ile doldurulacak -->
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 2. SEKME: GÜNCEL AĞIRLIK TAKİBİ (PR)       -->
+        <!-- ========================================== -->
+        <section id="tab-weights" class="tab-content hidden space-y-4">
+            <div class="bg-white rounded-2xl p-4 border border-cyan-100 shadow-sm space-y-3">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="trending-up" class="w-5 h-5 text-cyan-600"></i>
+                        <span>Ağırlık & PR Kaydı</span>
+                    </h2>
+                    <span class="text-xs text-cyan-700 font-semibold bg-cyan-50 px-2.5 py-1 rounded-lg border border-cyan-200/70">Progressive Overload</span>
+                </div>
+
+                <!-- Hareket Seçimi veya Yeni Hareket Yazma -->
+                <div class="space-y-2.5">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Hareket Seç veya Adını Yaz</label>
+                        <div class="relative">
+                            <input type="text" id="pr-exercise-input" list="known-exercises" placeholder="Örn: Bench Press, Squat, Bicep Curl..." class="w-full bg-slate-50 border border-slate-200 focus:border-cyan-500 focus:bg-white rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none transition">
+                            <datalist id="known-exercises"></datalist>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 mb-1">Ağırlık (kg)</label>
+                            <input type="number" step="0.5" id="pr-weight-input" placeholder="80" class="w-full bg-slate-50 border border-slate-200 focus:border-cyan-500 focus:bg-white rounded-xl px-3 py-2.5 text-sm text-slate-900 outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 mb-1">Set</label>
+                            <input type="number" id="pr-sets-input" placeholder="4" value="3" class="w-full bg-slate-50 border border-slate-200 focus:border-cyan-500 focus:bg-white rounded-xl px-3 py-2.5 text-sm text-slate-900 outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 mb-1">Tekrar</label>
+                            <input type="number" id="pr-reps-input" placeholder="10" value="10" class="w-full bg-slate-50 border border-slate-200 focus:border-cyan-500 focus:bg-white rounded-xl px-3 py-2.5 text-sm text-slate-900 outline-none transition">
+                        </div>
+                    </div>
+
+                    <button onclick="saveWeightLog()" class="w-full bg-gradient-to-r from-cyan-600 to-teal-500 hover:from-cyan-500 hover:to-teal-400 text-white font-semibold py-2.5 px-4 rounded-xl shadow-md shadow-cyan-500/20 flex items-center justify-center gap-2 transition active:scale-[0.98]">
+                        <i data-lucide="award" class="w-4 h-4"></i>
+                        <span>Ağırlık / PR Kaydet</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Rekorlar Özeti (En Yüksek PR Kartları) -->
+            <div class="space-y-2">
+                <div class="flex items-center justify-between px-1">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Kişisel Rekorlar (PR)</h3>
+                    <span id="pr-count-badge" class="text-xs font-semibold text-cyan-700">0 Hareket</span>
+                </div>
+                <div id="pr-summary-grid" class="grid grid-cols-2 gap-2.5">
+                    <!-- JS ile doldurulacak -->
+                </div>
+            </div>
+
+            <!-- Ağırlık Geçmişi Listesi -->
+            <div class="space-y-2 pb-4">
+                <div class="flex items-center justify-between px-1">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Son Ağırlık Kayıtları</h3>
+                    <input type="text" id="pr-filter-input" oninput="renderWeightsTab()" placeholder="Hareket ara..." class="bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs outline-none focus:border-cyan-500 w-36">
+                </div>
+                <div id="pr-history-list" class="space-y-2">
+                    <!-- JS ile doldurulacak -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 3. SEKME: VÜCUT & ÖLÇÜ TAKİBİ              -->
+        <!-- ========================================== -->
+        <section id="tab-body" class="tab-content hidden space-y-4">
+            <!-- Özet İstatistik Kartları -->
+            <div class="grid grid-cols-3 gap-2.5">
+                <div class="bg-white p-3 rounded-2xl border border-cyan-100 shadow-sm">
+                    <span class="text-[11px] font-medium text-slate-500 block">Güncel Kilo</span>
+                    <div class="flex items-baseline gap-1 mt-1">
+                        <span id="stat-current-weight" class="text-xl font-extrabold text-slate-900">--</span>
+                        <span class="text-xs font-semibold text-slate-400">kg</span>
+                    </div>
+                    <span id="stat-weight-diff" class="text-[10px] font-semibold text-teal-600 mt-0.5 block">İlk kayıt</span>
+                </div>
+                <div class="bg-white p-3 rounded-2xl border border-cyan-100 shadow-sm">
+                    <span class="text-[11px] font-medium text-slate-500 block">Yağ Oranı</span>
+                    <div class="flex items-baseline gap-1 mt-1">
+                        <span id="stat-current-fat" class="text-xl font-extrabold text-cyan-600">--</span>
+                        <span class="text-xs font-semibold text-slate-400">%</span>
+                    </div>
+                    <span class="text-[10px] font-medium text-slate-400 mt-0.5 block">Tahmini / Ölçüm</span>
+                </div>
+                <div class="bg-white p-3 rounded-2xl border border-cyan-100 shadow-sm">
+                    <span class="text-[11px] font-medium text-slate-500 block">Bel / Kol</span>
+                    <div class="flex items-baseline gap-1 mt-1">
+                        <span id="stat-waist-arm" class="text-base font-extrabold text-slate-900">-- / --</span>
+                    </div>
+                    <span class="text-[10px] font-medium text-slate-400 mt-0.5 block">cm ölçüsü</span>
+                </div>
+            </div>
+
+            <!-- Kilo Değişim Grafiği (Görsel Çubuklar) -->
+            <div class="bg-white rounded-2xl p-4 border border-cyan-100 shadow-sm">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                        <i data-lucide="bar-chart-3" class="w-4 h-4 text-cyan-600"></i>
+                        <span>Kilo Değişim Trendi</span>
+                    </h3>
+                    <span class="text-[11px] text-slate-400 font-medium">Son 7 Ölçüm</span>
+                </div>
+                <div id="weight-trend-chart" class="h-28 flex items-end justify-between gap-2 pt-4 px-1 bg-slate-50/70 rounded-xl border border-slate-100">
+                    <!-- JS ile doldurulacak -->
+                </div>
+            </div>
+
+            <!-- Yeni Vücut Ölçüsü Ekleme Formu -->
+            <div class="bg-white rounded-2xl p-4 border border-cyan-100 shadow-sm space-y-3">
+                <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="ruler" class="w-4 h-4 text-teal-600"></i>
+                    <span>Yeni Ölçü Kaydet</span>
+                </h2>
+
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-500 mb-1">Kilo (kg) *</label>
+                        <input type="number" step="0.1" id="body-weight-input" placeholder="78.5" class="w-full bg-slate-50 border border-slate-200 focus:border-cyan-500 focus:bg-white rounded-xl px-3 py-2 text-sm text-slate-900 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-500 mb-1">Yağ (%)</label>
+                        <input type="number" step="0.1" id="body-fat-input" placeholder="14.5" class="w-full bg-slate-50 border border-slate-200 focus:border-cyan-500 focus:bg-white rounded-xl px-3 py-2 text-sm text-slate-900 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-500 mb-1">Kol (cm)</label>
+                        <input type="number" step="0.5" id="body-arm-input" placeholder="38.5" class="w-full bg-slate-50 border border-slate-200 focus:border-cyan-500 focus:bg-white rounded-xl px-3 py-2 text-sm text-slate-900 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-500 mb-1">Göğüs (cm)</label>
+                        <input type="number" step="0.5" id="body-chest-input" placeholder="104" class="w-full bg-slate-50 border border-slate-200 focus:border-cyan-500 focus:bg-white rounded-xl px-3 py-2 text-sm text-slate-900 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-500 mb-1">Bel (cm)</label>
+                        <input type="number" step="0.5" id="body-waist-input" placeholder="81" class="w-full bg-slate-50 border border-slate-200 focus:border-cyan-500 focus:bg-white rounded-xl px-3 py-2 text-sm text-slate-900 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-500 mb-1">Bacak (cm)</label>
+                        <input type="number" step="0.5" id="body-leg-input" placeholder="58" class="w-full bg-slate-50 border border-slate-200 focus:border-cyan-500 focus:bg-white rounded-xl px-3 py-2 text-sm text-slate-900 outline-none">
+                    </div>
+                </div>
+
+                <button onclick="saveBodyMeasurement()" class="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white font-semibold py-2.5 px-4 rounded-xl shadow-md shadow-teal-500/20 flex items-center justify-center gap-2 transition active:scale-[0.98]">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    <span>Ölçüleri Kaydet</span>
+                </button>
+            </div>
+
+            <!-- Ölçü Geçmişi -->
+            <div class="space-y-2 pb-4">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 px-1">Ölçü Geçmişi</h3>
+                <div id="body-history-list" class="space-y-2">
+                    <!-- JS ile doldurulacak -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 4. SEKME: AI PT KOÇ ASİSTANI               -->
+        <!-- ========================================== -->
+        <section id="tab-ai" class="tab-content hidden flex flex-col h-[calc(100vh-160px)]">
+            <!-- AI Koç Üst Bilgi Kartı -->
+            <div class="bg-gradient-to-r from-cyan-600 to-teal-600 text-white p-3.5 rounded-2xl shadow-md shadow-cyan-500/20 flex items-center justify-between mb-3 shrink-0">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                        <i data-lucide="bot" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-sm leading-tight">Testo AI Personal Trainer</h2>
+                        <p id="ai-mode-indicator" class="text-[11px] text-cyan-100">Dahili Akıllı Koç Modu Aktif</p>
+                    </div>
+                </div>
+                <button onclick="clearAiChat()" class="p-2 rounded-lg bg-white/15 hover:bg-white/25 text-white transition" title="Sohbeti Temizle">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <!-- Hızlı Soru Çipleri -->
+            <div class="flex gap-1.5 overflow-x-auto no-scrollbar pb-2 mb-1 shrink-0">
+                <button onclick="sendQuickPrompt('Bench Press ağırlığımı nasıl artırabilirim?')" class="whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-cyan-200 text-xs font-medium text-cyan-800 hover:bg-cyan-50 transition shrink-0">
+                    💪 Bench Press Artırma
+                </button>
+                <button onclick="sendQuickPrompt('Kas kütlesi kazanmak (Bulk) için beslenme önerisi ver')" class="whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-cyan-200 text-xs font-medium text-cyan-800 hover:bg-cyan-50 transition shrink-0">
+                    🥩 Bulk Beslenme
+                </button>
+                <button onclick="sendQuickPrompt('Yağ yakımı (Definasyon) için kardiyo ve makro taktiği')" class="whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-cyan-200 text-xs font-medium text-cyan-800 hover:bg-cyan-50 transition shrink-0">
+                    🔥 Definasyon Taktiği
+                </button>
+                <button onclick="sendQuickPrompt('Bugünkü antrenman programımı analiz et')" class="whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-cyan-200 text-xs font-medium text-cyan-800 hover:bg-cyan-50 transition shrink-0">
+                    📋 Programımı Analiz Et
+                </button>
+            </div>
+
+            <!-- Sohbet Mesajları Alanı -->
+            <div id="ai-chat-messages" class="flex-1 overflow-y-auto ai-chat-scroll space-y-3 pr-1 pb-2">
+                <!-- JS ile doldurulacak -->
+            </div>
+
+            <!-- Mesaj Gönderme Kutusu -->
+            <form onsubmit="handleAiSubmit(event)" class="pt-2 shrink-0 flex gap-2">
+                <input type="text" id="ai-user-input" placeholder="Koçuna antrenman veya beslenme sor..." class="flex-1 bg-white border border-cyan-200 focus:border-cyan-500 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none shadow-sm">
+                <button type="submit" id="ai-send-btn" class="bg-gradient-to-r from-cyan-600 to-teal-500 hover:from-cyan-500 hover:to-teal-400 text-white px-4 rounded-xl shadow-md shadow-cyan-500/20 flex items-center justify-center transition active:scale-95">
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                </button>
+            </form>
+        </section>
+
+    </main>
+
+    <!-- ========================================== -->
+    <!-- ALT MOBİL NAVİGASYON BARI                  -->
+    <!-- ========================================== -->
+    <nav class="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-cyan-100 px-2 py-2 shadow-[0_-4px_20px_rgba(6,182,212,0.06)]">
+        <div class="max-w-lg mx-auto grid grid-cols-4 gap-1">
+            <button onclick="switchTab('workout')" id="nav-workout" class="nav-btn flex flex-col items-center justify-center py-1.5 px-2 rounded-xl text-cyan-600 bg-cyan-50/90 font-semibold transition">
+                <i data-lucide="calendar-days" class="w-5 h-5 mb-0.5"></i>
+                <span class="text-[11px]">Program</span>
+            </button>
+            <button onclick="switchTab('weights')" id="nav-weights" class="nav-btn flex flex-col items-center justify-center py-1.5 px-2 rounded-xl text-slate-500 hover:text-slate-800 font-medium transition">
+                <i data-lucide="trophy" class="w-5 h-5 mb-0.5"></i>
+                <span class="text-[11px]">Ağırlık / PR</span>
+            </button>
+            <button onclick="switchTab('body')" id="nav-body" class="nav-btn flex flex-col items-center justify-center py-1.5 px-2 rounded-xl text-slate-500 hover:text-slate-800 font-medium transition">
+                <i data-lucide="activity" class="w-5 h-5 mb-0.5"></i>
+                <span class="text-[11px]">Vücut & Ölçü</span>
+            </button>
+            <button onclick="switchTab('ai')" id="nav-ai" class="nav-btn flex flex-col items-center justify-center py-1.5 px-2 rounded-xl text-slate-500 hover:text-slate-800 font-medium transition">
+                <i data-lucide="sparkles" class="w-5 h-5 mb-0.5"></i>
+                <span class="text-[11px]">AI PT Koç</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ========================================== -->
+    <!-- MODALLAR (PENCERELER)                      -->
+    <!-- ========================================== -->
+
+    <!-- 1. Hareket Ekle / Düzenle Modalı -->
+    <div id="exercise-modal" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 modal-backdrop">
+        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4 shadow-2xl border border-cyan-100">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 id="exercise-modal-title" class="font-bold text-base text-slate-900">Yeni Hareket Ekle</h3>
+                <button onclick="closeModal('exercise-modal')" class="p-1.5 rounded-lg bg-slate-100 text-slate-500 hover:text-slate-800">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <input type="hidden" id="edit-exercise-id">
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Hareket Adı *</label>
+                    <input type="text" id="ex-name-input" placeholder="Örn: Incline Dumbbell Press" class="w-full bg-slate-50 border border-slate-200 focus:border-cyan-500 focus:bg-white rounded-xl px-3.5 py-2.5 text-sm outline-none">
+                </div>
+                <div class="grid grid-cols-3 gap-2.5">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Set Sayısı</label>
+                        <input type="number" id="ex-sets-input" value="4" min="1" max="15" class="w-full bg-slate-50 border border-slate-200 focus:border-cyan-500 focus:bg-white rounded-xl px-3 py-2.5 text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Tekrar Aralığı</label>
+                        <input type="text" id="ex-reps-input" value="8-12" placeholder="8-12" class="w-full bg-slate-50 border border-slate-200 focus:border-cyan-500 focus:bg-white rounded-xl px-3 py-2.5 text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Hedef Kg</label>
+                        <input type="number" step="0.5" id="ex-weight-input" placeholder="30" class="w-full bg-slate-50 border border-slate-200 focus:border-cyan-500 focus:bg-white rounded-xl px-3 py-2.5 text-sm outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Not / Form İpucu (İsteğe Bağlı)</label>
+                    <input type="text" id="ex-note-input" placeholder="Örn: Negatifleri 3 saniye yavaş indir" class="w-full bg-slate-50 border border-slate-200 focus:border-cyan-500 focus:bg-white rounded-xl px-3.5 py-2.5 text-sm outline-none">
+                </div>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button onclick="closeModal('exercise-modal')" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm">İptal</button>
+                <button onclick="saveExerciseForm()" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-500 text-white font-semibold text-sm shadow-md shadow-cyan-500/20">Kaydet</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Gün Bölge Adı Düzenleme Modalı -->
+    <div id="focus-modal" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 modal-backdrop">
+        <div class="bg-white w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl border border-cyan-100">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-base text-slate-900">Antrenman Bölgesini Düzenle</h3>
+                <button onclick="closeModal('focus-modal')" class="p-1.5 rounded-lg bg-slate-100 text-slate-500">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Bölge / Odak Adı</label>
+                <input type="text" id="day-focus-input" placeholder="Örn: Göğüs & Triceps veya Dinlenme" class="w-full bg-slate-50 border border-slate-200 focus:border-cyan-500 rounded-xl px-3.5 py-2.5 text-sm outline-none">
+            </div>
+            <div class="flex flex-wrap gap-1.5">
+                <button type="button" onclick="document.getElementById('day-focus-input').value='Göğüs & Arka Kol'" class="text-xs px-2.5 py-1 rounded-lg bg-cyan-50 text-cyan-700 border border-cyan-200">Göğüs & Arka Kol</button>
+                <button type="button" onclick="document.getElementById('day-focus-input').value='Sırt & Ön Kol'" class="text-xs px-2.5 py-1 rounded-lg bg-cyan-50 text-cyan-700 border border-cyan-200">Sırt & Ön Kol</button>
+                <button type="button" onclick="document.getElementById('day-focus-input').value='Bacak & Omuz'" class="text-xs px-2.5 py-1 rounded-lg bg-cyan-50 text-cyan-700 border border-cyan-200">Bacak & Omuz</button>
+                <button type="button" onclick="document.getElementById('day-focus-input').value='Dinlenme (Off Day)'" class="text-xs px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">Dinlenme</button>
+            </div>
+            <button onclick="saveDayFocus()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-500 text-white font-semibold text-sm shadow-md">Güncelle</button>
+        </div>
+    </div>
+
+    <!-- 3. Hazır Program Şablonları Modalı -->
+    <div id="template-modal" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 modal-backdrop">
+        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4 shadow-2xl border border-cyan-100 max-h-[85vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div>
+                    <h3 class="font-bold text-base text-slate-900">Hazır Program Şablonları</h3>
+                    <p class="text-xs text-slate-500">Seçtiğiniz şablon haftalık programınıza uygulanır.</p>
+                </div>
+                <button onclick="closeModal('template-modal')" class="p-1.5 rounded-lg bg-slate-100 text-slate-500">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="space-y-2.5">
+                <div class="p-3.5 rounded-2xl border border-cyan-200 bg-cyan-50/40 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-sm text-slate-900">Push / Pull / Legs (6 Gün)</span>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-600 text-white">Hipertrofi</span>
+                    </div>
+                    <p class="text-xs text-slate-600">İtiş (Göğüs/Omuz/Triceps), Çekiş (Sırt/Biceps) ve Bacak odaklı klasik hacim programı.</p>
+                    <button onclick="applyWorkoutTemplate('ppl')" class="w-full py-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-semibold transition">Bu Şablonu Uygula</button>
+                </div>
+
+                <div class="p-3.5 rounded-2xl border border-teal-200 bg-teal-50/40 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-sm text-slate-900">Upper / Lower (4 Gün)</span>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-teal-600 text-white">Güç & Kütle</span>
+                    </div>
+                    <p class="text-xs text-slate-600">Haftada 2 kez Üst Vücut, 2 kez Alt Vücut çalıştıran dengeli güç ve gelişim spliti.</p>
+                    <button onclick="applyWorkoutTemplate('upperlower')" class="w-full py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold transition">Bu Şablonu Uygula</button>
+                </div>
+
+                <div class="p-3.5 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-sm text-slate-900">Full Body (3 Gün)</span>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-700 text-white">Başlangıç / Orta</span>
+                    </div>
+                    <p class="text-xs text-slate-600">Pazartesi, Çarşamba ve Cuma günleri tüm vücudu bileşik hareketlerle çalıştırır.</p>
+                    <button onclick="applyWorkoutTemplate('fullbody')" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold transition">Bu Şablonu Uygula</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. AI API Anahtarı Modalı -->
+    <div id="ai-key-modal" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 modal-backdrop">
+        <div class="bg-white w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl border border-cyan-100">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+                    <i data-lucide="key-round" class="w-4 h-4 text-cyan-600"></i>
+                    <span>Gemini AI PT Ayarları</span>
+                </h3>
+                <button onclick="closeModal('ai-key-modal')" class="p-1.5 rounded-lg bg-slate-100 text-slate-500">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed">
+                İsteğe bağlı olarak Google Gemini API anahtarınızı girerek AI Koç ile gerçek zamanlı yapay zeka sohbeti yapabilirsiniz. Anahtar girmezseniz dahili akıllı spor koçu çalışmaya devam eder.
+            </p>
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Gemini API Key</label>
+                <input type="password" id="gemini-api-key-input" placeholder="AIzaSy..." class="w-full bg-slate-50 border border-slate-200 focus:border-cyan-500 rounded-xl px-3.5 py-2.5 text-sm outline-none">
+            </div>
+            <div class="flex gap-2">
+                <button onclick="clearAiKey()" class="py-2.5 px-3 rounded-xl bg-rose-50 text-rose-600 font-semibold text-xs">Temizle</button>
+                <button onclick="saveAiKey()" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-500 text-white font-semibold text-sm shadow-md">Kaydet</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. APK & Ana Ekrana Ekleme Rehberi Modalı -->
+    <div id="apk-modal" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 modal-backdrop">
+        <div class="bg-white w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl border border-cyan-100">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+                    <i data-lucide="smartphone" class="w-4 h-4 text-teal-600"></i>
+                    <span>Telefonuna Uygulama Gibi Kur</span>
+                </h3>
+                <button onclick="closeModal('apk-modal')" class="p-1.5 rounded-lg bg-slate-100 text-slate-500">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="space-y-3 text-xs text-slate-600">
+                <div class="p-3 rounded-2xl bg-cyan-50/70 border border-cyan-100 space-y-1">
+                    <p class="font-bold text-cyan-900">Android (Chrome):</p>
+                    <p>1. Sağ üstteki <strong>üç nokta (⋮)</strong> menüsüne dokunun.</p>
+                    <p>2. <strong>"Ana ekrana ekle"</strong> veya <strong>"Uygulamayı yükle"</strong> seçeneğine basın.</p>
+                </div>
+                <div class="p-3 rounded-2xl bg-teal-50/70 border border-teal-100 space-y-1">
+                    <p class="font-bold text-teal-900">iPhone / iOS (Safari):</p>
+                    <p>1. Alt bardaki <strong>Paylaş (kare ve yukarı ok)</strong> simgesine dokunun.</p>
+                    <p>2. Aşağı kaydırıp <strong>"Ana Ekrana Ekle"</strong> seçeneğine basın.</p>
+                </div>
+                <p class="text-[11px] text-slate-400">Tüm verileriniz cihazınızın yerel hafızasında güvenle saklanır ve internetsiz ortamda da çalışır.</p>
+            </div>
+            <button onclick="closeModal('apk-modal')" class="w-full py-2.5 rounded-xl bg-slate-900 text-white font-semibold text-sm">Anladım</button>
+        </div>
+    </div>
+
+    <!-- 6. Ayarlar & Yedekleme Modalı -->
+    <div id="settings-modal" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 modal-backdrop">
+        <div class="bg-white w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl border border-cyan-100">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+                    <i data-lucide="settings" class="w-4 h-4 text-slate-700"></i>
+                    <span>Veri Yönetimi & Yedekleme</span>
+                </h3>
+                <button onclick="closeModal('settings-modal')" class="p-1.5 rounded-lg bg-slate-100 text-slate-500">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="space-y-2.5">
+                <button onclick="exportBackupJson()" class="w-full py-2.5 px-4 rounded-xl bg-cyan-50 hover:bg-cyan-100 text-cyan-800 border border-cyan-200 font-semibold text-xs flex items-center justify-center gap-2 transition">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    <span>Yedeği Panoya Kopyala (JSON)</span>
+                </button>
+                
+                <div class="pt-1">
+                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">JSON Yedeğinden Geri Yükle:</label>
+                    <textarea id="import-json-area" rows="2" placeholder="Kopyaladığınız yedek kodunu buraya yapıştırın..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs outline-none focus:border-cyan-500"></textarea>
+                    <button onclick="importBackupJson()" class="mt-1.5 w-full py-2 px-4 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs flex items-center justify-center gap-2 transition">
+                        <i data-lucide="upload" class="w-4 h-4"></i>
+                        <span>Yedeği İçe Aktar</span>
+                    </button>
+                </div>
+
+                <div class="border-t border-slate-100 pt-3">
+                    <button onclick="resetAllAppData()" class="w-full py-2.5 px-4 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-semibold text-xs flex items-center justify-center gap-2 transition">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        <span>Varsayılan Verilere Sıfırla</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- UYGULAMA JAVASCRIPT MOTORU                 -->
+    <!-- ========================================== -->
+    <script>
+        const STORAGE_KEY = 'testo_fit_data_v1';
+        const AI_KEY_STORAGE = 'testo_fit_gemini_key';
+
+        const DAYS_META = [
+            { id: 'mon', short: 'Pzt', full: 'Pazartesi' },
+            { id: 'tue', short: 'Sal', full: 'Salı' },
+            { id: 'wed', short: 'Çar', full: 'Çarşamba' },
+            { id: 'thu', short: 'Per', full: 'Perşembe' },
+            { id: 'fri', short: 'Cum', full: 'Cuma' },
+            { id: 'sat', short: 'Cmt', full: 'Cumartesi' },
+            { id: 'sun', short: 'Paz', full: 'Pazar' }
+        ];
+
+        // Varsayılan Örnek Veriler (İlk açılışta zengin deneyim için)
+        const DEFAULT_STATE = {
+            selectedDay: 'mon',
+            schedule: {
+                mon: {
+                    focus: 'Göğüs & Arka Kol (Push)',
+                    exercises: [
+                        { id: 'ex1', name: 'Bench Press', sets: 4, reps: '8-10', weight: '80', note: 'Göğüs hizasına kontrollü indir', completedSets: [true, true, false, false] },
+                        { id: 'ex2', name: 'Incline Dumbbell Press', sets: 3, reps: '10-12', weight: '30', note: '30 derece sehpa açısı', completedSets: [false, false, false] },
+                        { id: 'ex3', name: 'Cable Crossover', sets: 3, reps: '12-15', weight: '15', note: 'Tepe noktada 1 sn sıkıştır', completedSets: [false, false, false] },
+                        { id: 'ex4', name: 'Triceps Rope Pushdown', sets: 4, reps: '12', weight: '25', note: 'Dirsekler sabit kalsın', completedSets: [false, false, false, false] }
+                    ]
+                },
+                tue: {
+                    focus: 'Sırt & Ön Kol (Pull)',
+                    exercises: [
+                        { id: 'ex5', name: 'Lat Pulldown', sets: 4, reps: '10-12', weight: '65', note: 'Göğüs üstüne doğru çek', completedSets: [false, false, false, false] },
+                        { id: 'ex6', name: 'Barbell Row', sets: 4, reps: '8-10', weight: '70', note: 'Bel düz, karın sıkı', completedSets: [false, false, false, false] },
+                        { id: 'ex7', name: 'Seated Cable Row', sets: 3, reps: '12', weight: '55', note: 'Kürek kemiklerini birleştir', completedSets: [false, false, false] },
+                        { id: 'ex8', name: 'EZ-Bar Bicep Curl', sets: 3, reps: '10-12', weight: '32.5', note: 'Sallanmadan tam hareket açıklığı', completedSets: [false, false, false] }
+                    ]
+                },
+                wed: {
+                    focus: 'Bacak & Omuz (Legs & Shoulders)',
+                    exercises: [
+                        { id: 'ex9', name: 'Barbell Squat', sets: 4, reps: '8-10', weight: '100', note: 'Paralel altına kontrollü in', completedSets: [false, false, false, false] },
+                        { id: 'ex10', name: 'Romanian Deadlift', sets: 3, reps: '10', weight: '85', note: 'Arka bacak esnemesini hisset', completedSets: [false, false, false] },
+                        { id: 'ex11', name: 'Overhead Dumbbell Press', sets: 4, reps: '10', weight: '22.5', note: 'Bel çukuru oluşturma', completedSets: [false, false, false, false] },
+                        { id: 'ex12', name: 'Dumbbell Lateral Raise', sets: 4, reps: '15', weight: '10', note: 'Dirsekler önde, yan omuz odaklı', completedSets: [false, false, false, false] }
+                    ]
+                },
+                thu: {
+                    focus: 'Aktif Dinlenme & Karın',
+                    exercises: [
+                        { id: 'ex13', name: 'Hanging Leg Raise', sets: 3, reps: '15', weight: '0', note: 'Alt karın odaklı', completedSets: [false, false, false] },
+                        { id: 'ex14', name: 'Plank', sets: 3, reps: '60 sn', weight: '0', note: 'Core bölgesini sıkı tut', completedSets: [false, false, false] }
+                    ]
+                },
+                fri: {
+                    focus: 'Üst Vücut Güç (Upper)',
+                    exercises: [
+                        { id: 'ex15', name: 'Incline Barbell Press', sets: 4, reps: '8', weight: '72.5', note: '', completedSets: [false, false, false, false] },
+                        { id: 'ex16', name: 'Weighted Pull-Ups', sets: 4, reps: '8', weight: '10', note: 'Ekstra +10 kg kemerle', completedSets: [false, false, false, false] },
+                        { id: 'ex17', name: 'Hammer Curl', sets: 3, reps: '12', weight: '16', note: '', completedSets: [false, false, false] }
+                    ]
+                },
+                sat: {
+                    focus: 'Alt Vücut & Kondisyon',
+                    exercises: [
+                        { id: 'ex18', name: 'Leg Press', sets: 4, reps: '12', weight: '180', note: '', completedSets: [false, false, false, false] },
+                        { id: 'ex19', name: 'Leg Curl', sets: 3, reps: '12-15', weight: '45', note: '', completedSets: [false, false, false] }
+                    ]
+                },
+                sun: {
+                    focus: 'Tam Dinlenme (Off Day)',
+                    exercises: []
+                }
+            },
+            weightLogs: [
+                { id: 'w1', exercise: 'Bench Press', weight: 80, sets: 4, reps: 8, date: '24 Kas 2026' },
+                { id: 'w2', exercise: 'Barbell Squat', weight: 100, sets: 4, reps: 8, date: '22 Kas 2026' },
+                { id: 'w3', exercise: 'Barbell Row', weight: 70, sets: 4, reps: 10, date: '20 Kas 2026' },
+                { id: 'w4', exercise: 'Bench Press', weight: 77.5, sets: 4, reps: 10, date: '17 Kas 2026' }
+            ],
+            bodyLogs: [
+                { id: 'b1', weight: 79.4, fat: 14.8, chest: 104, waist: 81.5, arm: 38.5, leg: 58, date: '10 Kas' },
+                { id: 'b2', weight: 78.9, fat: 14.4, chest: 104.5, waist: 80.5, arm: 38.7, leg: 58.2, date: '18 Kas' },
+                { id: 'b3', weight: 78.5, fat: 14.0, chest: 105, waist: 80.0, arm: 39.0, leg: 58.5, date: '25 Kas' }
+            ],
+            aiMessages: [
+                { role: 'ai', text: 'Selam şampiyon! Ben Testo AI PT Koçun. Haftalık antrenman programını analiz edebilir, ağırlık artırma taktikleri verebilir veya hedeflerine göre makro/beslenme planı oluşturabilirim. Bugün neye odaklanıyoruz?' }
+            ]
+        };
+
+        let appState = loadState();
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return JSON.parse(JSON.stringify(DEFAULT_STATE));
+                return JSON.parse(raw);
+            } catch (e) {
+                return JSON.parse(JSON.stringify(DEFAULT_STATE));
+            }
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            } catch (e) {
+                console.error('Kayıt hatası:', e);
+            }
+        }
+
+        // ==========================================
+        // TOAST BİLDİRİM SİSTEMİ
+        // ==========================================
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgClass = type === 'error' ? 'bg-rose-600' : 'bg-slate-900';
+            const iconName = type === 'error' ? 'alert-circle' : 'check-circle-2';
+            const iconColor = type === 'error' ? 'text-rose-200' : 'text-cyan-400';
+
+            toast.className = `${bgClass} text-white px-4 py-2.5 rounded-2xl shadow-xl flex items-center gap-2.5 text-xs font-semibold transition-all duration-300 transform translate-y-0 opacity-100`;
+            toast.innerHTML = `
+                <i data-lucide="${iconName}" class="w-4 h-4 ${iconColor} shrink-0"></i>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', '-translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 2400);
+        }
+
+        // ==========================================
+        // SEKME GEÇİŞLERİ
+        // ==========================================
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-cyan-600', 'bg-cyan-50/90', 'font-semibold');
+                btn.classList.add('text-slate-500', 'font-medium');
+            });
+
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            activeBtn.classList.remove('text-slate-500', 'font-medium');
+            activeBtn.classList.add('text-cyan-600', 'bg-cyan-50/90', 'font-semibold');
+
+            const subtitles = {
+                workout: 'Haftalık Program & Gelişim',
+                weights: 'Kişisel Rekorlar (PR) & Yükleme',
+                body: 'Vücut Analizi & Ölçüm Takibi',
+                ai: 'Yapay Zeka Kişisel Antrenör'
+            };
+            document.getElementById('header-subtitle').textContent = subtitles[tabId];
+
+            if (tabId === 'weights') renderWeightsTab();
+            if (tabId === 'body') renderBodyTab();
+            if (tabId === 'ai') renderAiChat();
+        }
+
+        // ==========================================
+        // 1. HAFTALIK ANTRENMAN PROGRAMI İŞLEMLERİ
+        // ==========================================
+        function renderWorkoutTab() {
+            const daySelector = document.getElementById('day-selector');
+            daySelector.innerHTML = DAYS_META.map(d => {
+                const isSelected = appState.selectedDay === d.id;
+                const dayData = appState.schedule[d.id];
+                const hasEx = dayData && dayData.exercises.length > 0;
+                const allDone = hasEx && dayData.exercises.every(ex => ex.completedSets.every(Boolean));
+
+                return `
+                    <button onclick="selectDay('${d.id}')" class="py-2 rounded-xl flex flex-col items-center justify-center transition active:scale-95 ${
+                        isSelected 
+                        ? 'bg-gradient-to-br from-cyan-500 to-teal-500 text-white shadow-sm font-bold' 
+                        : 'text-slate-600 hover:bg-cyan-50 font-medium'
+                    }">
+                        <span class="text-xs">${d.short}</span>
+                        <span class="w-1.5 h-1.5 rounded-full mt-1 ${
+                            isSelected ? 'bg-white' : (allDone ? 'bg-emerald-500' : (hasEx ? 'bg-cyan-400' : 'bg-transparent'))
+                        }"></span>
+                    </button>
+                `;
+            }).join('');
+
+            const currentMeta = DAYS_META.find(d => d.id === appState.selectedDay);
+            const currentDay = appState.schedule[appState.selectedDay];
+
+            document.getElementById('selected-day-name').textContent = currentMeta.full;
+            document.getElementById('selected-day-focus').textContent = currentDay.focus;
+
+            // İlerleme hesaplama
+            let totalSets = 0;
+            let completedSetsCount = 0;
+            currentDay.exercises.forEach(ex => {
+                totalSets += ex.completedSets.length;
+                completedSetsCount += ex.completedSets.filter(Boolean).length;
+            });
+
+            const percent = totalSets === 0 ? 0 : Math.round((completedSetsCount / totalSets) * 100);
+            document.getElementById('day-progress-badge').textContent = `${completedSetsCount}/${totalSets} Set (%${percent})`;
+            document.getElementById('day-progress-bar').style.width = `${percent}%`;
+
+            // Egzersiz kartlarını çiz
+            const listEl = document.getElementById('exercise-list');
+            if (currentDay.exercises.length === 0) {
+                listEl.innerHTML = `
+                    <div class="bg-white rounded-2xl p-8 border border-dashed border-cyan-200 text-center space-y-2">
+                        <div class="w-12 h-12 rounded-2xl bg-cyan-50 text-cyan-600 flex items-center justify-center mx-auto">
+                            <i data-lucide="coffee" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-sm">Bugün İçin Hareket Eklenmemiş</h3>
+                        <p class="text-xs text-slate-500 max-w-xs mx-auto">Dinlenme günü olarak bırakabilir veya "Hareket Ekle" butonuna basarak egzersiz tanımlayabilirsin.</p>
+                    </div>
+                `;
+            } else {
+                listEl.innerHTML = currentDay.exercises.map(ex => {
+                    const isAllDone = ex.completedSets.every(Boolean);
+                    return `
+                        <div class="bg-white rounded-2xl p-4 border ${isAllDone ? 'border-teal-300 bg-teal-50/20' : 'border-cyan-100'} shadow-sm transition space-y-3">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2">
+                                        <h4 class="font-bold text-sm ${isAllDone ? 'text-teal-800 line-through decoration-teal-400' : 'text-slate-900'}">${ex.name}</h4>
+                                        ${ex.weight && Number(ex.weight) > 0 ? `<span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-cyan-50 text-cyan-700 border border-cyan-200/70">${ex.weight} kg</span>` : ''}
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-medium mt-0.5">${ex.sets} Set × ${ex.reps} Tekrar</p>
+                                    ${ex.note ? `<p class="text-[11px] text-slate-400 italic mt-1 flex items-center gap-1"><i data-lucide="info" class="w-3 h-3 text-cyan-500 shrink-0"></i>${ex.note}</p>` : ''}
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <button onclick="quickLogPRFromWorkout('${ex.name.replace(/'/g, "\\'")}', '${ex.weight || 0}', ${ex.sets}, '${ex.reps}')" class="p-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-600 transition" title="PR Olarak Kaydet">
+                                        <i data-lucide="trophy" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                    <button onclick="openExerciseModal('${ex.id}')" class="p-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-500 transition" title="Düzenle">
+                                        <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                    <button onclick="deleteExercise('${ex.id}')" class="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-500 transition" title="Sil">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Set Tik Kutuları -->
+                            <div class="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-100">
+                                <span class="text-[11px] font-semibold text-slate-400 mr-1">Setler:</span>
+                                ${ex.completedSets.map((done, idx) => `
+                                    <button onclick="toggleSetComplete('${ex.id}', ${idx})" class="h-8 px-3 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition active:scale-95 ${
+                                        done 
+                                        ? 'bg-gradient-to-r from-cyan-500 to-teal-500 text-white border-transparent shadow-xs' 
+                                        : 'bg-slate-50 hover:bg-cyan-50 text-slate-600 border-slate-200'
+                                    }">
+                                        <i data-lucide="${done ? 'check-square' : 'square'}" class="w-3.5 h-3.5"></i>
+                                        <span>${idx + 1}. Set</span>
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            updateExerciseDatalist();
+            lucide.createIcons();
+        }
+
+        function selectDay(dayId) {
+            appState.selectedDay = dayId;
+            saveState();
+            renderWorkoutTab();
+        }
+
+        function toggleSetComplete(exId, setIdx) {
+            const ex = appState.schedule[appState.selectedDay].exercises.find(e => e.id === exId);
+            if (!ex) return;
+            ex.completedSets[setIdx] = !ex.completedSets[setIdx];
+            saveState();
+            renderWorkoutTab();
+        }
+
+        function resetDayCompletion() {
+            const currentDay = appState.schedule[appState.selectedDay];
+            currentDay.exercises.forEach(ex => {
+                ex.completedSets = ex.completedSets.map(() => false);
+            });
+            saveState();
+            renderWorkoutTab();
+            showToast('Günün set tikleri sıfırlandı');
+        }
+
+        function openEditFocusModal() {
+            document.getElementById('day-focus-input').value = appState.schedule[appState.selectedDay].focus;
+            openModal('focus-modal');
+        }
+
+        function saveDayFocus() {
+            const val = document.getElementById('day-focus-input').value.trim();
+            if (!val) return showToast('Lütfen bir bölge adı yazın', 'error');
+            appState.schedule[appState.selectedDay].focus = val;
+            saveState();
+            closeModal('focus-modal');
+            renderWorkoutTab();
+            showToast('Antrenman bölgesi güncellendi');
+        }
+
+        function openExerciseModal(editId = null) {
+            document.getElementById('edit-exercise-id').value = editId || '';
+            if (editId) {
+                const ex = appState.schedule[appState.selectedDay].exercises.find(e => e.id === editId);
+                document.getElementById('exercise-modal-title').textContent = 'Hareketi Düzenle';
+                document.getElementById('ex-name-input').value = ex.name;
+                document.getElementById('ex-sets-input').value = ex.sets;
+                document.getElementById('ex-reps-input').value = ex.reps;
+                document.getElementById('ex-weight-input').value = ex.weight || '';
+                document.getElementById('ex-note-input').value = ex.note || '';
+            } else {
+                document.getElementById('exercise-modal-title').textContent = 'Yeni Hareket Ekle';
+                document.getElementById('ex-name-input').value = '';
+                document.getElementById('ex-sets-input').value = '4';
+                document.getElementById('ex-reps-input').value = '8-12';
+                document.getElementById('ex-weight-input').value = '';
+                document.getElementById('ex-note-input').value = '';
+            }
+            openModal('exercise-modal');
+        }
+
+        function saveExerciseForm() {
+            const editId = document.getElementById('edit-exercise-id').value;
+            const name = document.getElementById('ex-name-input').value.trim();
+            const sets = Math.max(1, Math.min(15, parseInt(document.getElementById('ex-sets-input').value) || 3));
+            const reps = document.getElementById('ex-reps-input').value.trim() || '10';
+            const weight = document.getElementById('ex-weight-input').value.trim();
+            const note = document.getElementById('ex-note-input').value.trim();
+
+            if (!name) return showToast('Hareket adı boş bırakılamaz', 'error');
+
+            const dayExercises = appState.schedule[appState.selectedDay].exercises;
+            if (editId) {
+                const idx = dayExercises.findIndex(e => e.id === editId);
+                if (idx !== -1) {
+                    const oldDone = dayExercises[idx].completedSets;
+                    const newDone = Array.from({ length: sets }, (_, i) => oldDone[i] || false);
+                    dayExercises[idx] = { id: editId, name, sets, reps, weight, note, completedSets: newDone };
+                }
+                showToast('Hareket güncellendi');
+            } else {
+                dayExercises.push({
+                    id: 'ex_' + Date.now(),
+                    name,
+                    sets,
+                    reps,
+                    weight,
+                    note,
+                    completedSets: Array(sets).fill(false)
+                });
+                showToast('Hareket programa eklendi');
+            }
+
+            saveState();
+            closeModal('exercise-modal');
+            renderWorkoutTab();
+        }
+
+        function deleteExercise(exId) {
+            appState.schedule[appState.selectedDay].exercises = appState.schedule[appState.selectedDay].exercises.filter(e => e.id !== exId);
+            saveState();
+            renderWorkoutTab();
+            showToast('Hareket silindi');
+        }
+
+        function applyWorkoutTemplate(type) {
+            if (type === 'ppl') {
+                appState.schedule = JSON.parse(JSON.stringify(DEFAULT_STATE.schedule));
+            } else if (type === 'upperlower') {
+                appState.schedule = {
+                    mon: { focus: 'Üst Vücut A (Upper Power)', exercises: [
+                        { id: 'ul1', name: 'Bench Press', sets: 4, reps: '6-8', weight: '80', note: '', completedSets: [false,false,false,false] },
+                        { id: 'ul2', name: 'Barbell Row', sets: 4, reps: '6-8', weight: '75', note: '', completedSets: [false,false,false,false] },
+                        { id: 'ul3', name: 'Overhead Press', sets: 3, reps: '8-10', weight: '50', note: '', completedSets: [false,false,false] },
+                        { id: 'ul4', name: 'Lat Pulldown', sets: 3, reps: '10-12', weight: '65', note: '', completedSets: [false,false,false] }
+                    ]},
+                    tue: { focus: 'Alt Vücut A (Lower Power)', exercises: [
+                        { id: 'ul5', name: 'Barbell Squat', sets: 4, reps: '6-8', weight: '100', note: '', completedSets: [false,false,false,false] },
+                        { id: 'ul6', name: 'Romanian Deadlift', sets: 3, reps: '8-10', weight: '85', note: '', completedSets: [false,false,false] },
+                        { id: 'ul7', name: 'Leg Extension', sets: 3, reps: '12-15', weight: '50', note: '', completedSets: [false,false,false] }
+                    ]},
+                    wed: { focus: 'Dinlenme (Off Day)', exercises: [] },
+                    thu: { focus: 'Üst Vücut B (Hipertrofi)', exercises: [
+                        { id: 'ul8', name: 'Incline Dumbbell Press', sets: 4, reps: '10-12', weight: '30', note: '', completedSets: [false,false,false,false] },
+                        { id: 'ul9', name: 'Seated Cable Row', sets: 4, reps: '10-12', weight: '60', note: '', completedSets: [false,false,false,false] },
+                        { id: 'ul10', name: 'Lateral Raise', sets: 4, reps: '15', weight: '10', note: '', completedSets: [false,false,false,false] },
+                        { id: 'ul11', name: 'Bicep Curl & Triceps Pushdown', sets: 3, reps: '12', weight: '25', note: 'Süperset', completedSets: [false,false,false] }
+                    ]},
+                    fri: { focus: 'Alt Vücut B (Hipertrofi)', exercises: [
+                        { id: 'ul12', name: 'Leg Press', sets: 4, reps: '10-12', weight: '180', note: '', completedSets: [false,false,false,false] },
+                        { id: 'ul13', name: 'Lying Leg Curl', sets: 4, reps: '12', weight: '45', note: '', completedSets: [false,false,false,false] },
+                        { id: 'ul14', name: 'Standing Calf Raise', sets: 4, reps: '15', weight: '60', note: '', completedSets: [false,false,false,false] }
+                    ]},
+                    sat: { focus: 'Kardiyo & Core', exercises: [] },
+                    sun: { focus: 'Tam Dinlenme', exercises: [] }
+                };
+            } else if (type === 'fullbody') {
+                const fbExercises = [
+                    { id: 'fb1', name: 'Barbell Squat', sets: 3, reps: '8-10', weight: '90', note: '', completedSets: [false,false,false] },
+                    { id: 'fb2', name: 'Bench Press', sets: 3, reps: '8-10', weight: '75', note: '', completedSets: [false,false,false] },
+                    { id: 'fb3', name: 'Lat Pulldown', sets: 3, reps: '10-12', weight: '60', note: '', completedSets: [false,false,false] },
+                    { id: 'fb4', name: 'Dumbbell Shoulder Press', sets: 3, reps: '10-12', weight: '20', note: '', completedSets: [false,false,false] },
+                    { id: 'fb5', name: 'Cable Rope Curl', sets: 2, reps: '12-15', weight: '20', note: '', completedSets: [false,false] }
+                ];
+                appState.schedule = {
+                    mon: { focus: 'Full Body A', exercises: JSON.parse(JSON.stringify(fbExercises)) },
+                    tue: { focus: 'Dinlenme', exercises: [] },
+                    wed: { focus: 'Full Body B', exercises: JSON.parse(JSON.stringify(fbExercises)) },
+                    thu: { focus: 'Dinlenme', exercises: [] },
+                    fri: { focus: 'Full Body C', exercises: JSON.parse(JSON.stringify(fbExercises)) },
+                    sat: { focus: 'Hafif Yürüyüş / Mobilite', exercises: [] },
+                    sun: { focus: 'Tam Dinlenme', exercises: [] }
+                };
+            }
+            saveState();
+            closeModal('template-modal');
+            renderWorkoutTab();
+            showToast('Program şablonu başarıyla uygulandı!');
+        }
+
+        // ==========================================
+        // 2. AĞIRLIK & PR TAKİBİ İŞLEMLERİ
+        // ==========================================
+        function updateExerciseDatalist() {
+            const names = new Set();
+            Object.values(appState.schedule).forEach(day => {
+                day.exercises.forEach(ex => names.add(ex.name));
+            });
+            appState.weightLogs.forEach(log => names.add(log.exercise));
+
+            const datalist = document.getElementById('known-exercises');
+            datalist.innerHTML = Array.from(names).map(n => `<option value="${n}">`).join('');
+        }
+
+        function quickLogPRFromWorkout(name, weight, sets, repsStr) {
+            const numWeight = parseFloat(weight);
+            if (!numWeight || numWeight <= 0) {
+                switchTab('weights');
+                document.getElementById('pr-exercise-input').value = name;
+                document.getElementById('pr-weight-input').focus();
+                showToast('Ağırlık değerini girip kaydedin');
+                return;
+            }
+            const parsedReps = parseInt(repsStr) || 10;
+            const today = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
+            appState.weightLogs.unshift({
+                id: 'w_' + Date.now(),
+                exercise: name,
+                weight: numWeight,
+                sets: sets,
+                reps: parsedReps,
+                date: today
+            });
+            saveState();
+            showToast(`${name} (${numWeight} kg) PR listesine eklendi!`);
+        }
+
+        function saveWeightLog() {
+            const exercise = document.getElementById('pr-exercise-input').value.trim();
+            const weight = parseFloat(document.getElementById('pr-weight-input').value);
+            const sets = parseInt(document.getElementById('pr-sets-input').value) || 3;
+            const reps = parseInt(document.getElementById('pr-reps-input').value) || 10;
+
+            if (!exercise) return showToast('Hareket adını giriniz', 'error');
+            if (isNaN(weight) || weight <= 0) return showToast('Geçerli bir ağırlık (kg) giriniz', 'error');
+
+            const today = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
+            appState.weightLogs.unshift({
+                id: 'w_' + Date.now(),
+                exercise,
+                weight,
+                sets,
+                reps,
+                date: today
+            });
+
+            document.getElementById('pr-weight-input').value = '';
+            saveState();
+            renderWeightsTab();
+            showToast('Yeni ağırlık / PR kaydı eklendi!');
+        }
+
+        function deleteWeightLog(id) {
+            appState.weightLogs = appState.weightLogs.filter(w => w.id !== id);
+            saveState();
+            renderWeightsTab();
+            showToast('Kayıt silindi');
+        }
+
+        function renderWeightsTab() {
+            updateExerciseDatalist();
+
+            // Hareket bazlı en yüksek PR'ları hesapla
+            const prMap = {};
+            appState.weightLogs.forEach(log => {
+                const key = log.exercise.trim();
+                if (!prMap[key] || log.weight > prMap[key].weight) {
+                    prMap[key] = log;
+                }
+            });
+
+            const prEntries = Object.values(prMap).sort((a, b) => b.weight - a.weight);
+            document.getElementById('pr-count-badge').textContent = `${prEntries.length} Hareket`;
+
+            const summaryGrid = document.getElementById('pr-summary-grid');
+            if (prEntries.length === 0) {
+                summaryGrid.innerHTML = `<p class="col-span-2 text-xs text-slate-400 bg-white p-4 rounded-xl border border-slate-100 text-center">Henüz ağırlık kaydı bulunmuyor.</p>`;
+            } else {
+                summaryGrid.innerHTML = prEntries.map(pr => `
+                    <div class="bg-white p-3 rounded-2xl border border-cyan-100 shadow-sm flex flex-col justify-between">
+                        <div class="flex items-center justify-between gap-1">
+                            <span class="text-xs font-bold text-slate-800 truncate">${pr.exercise}</span>
+                            <i data-lucide="award" class="w-3.5 h-3.5 text-amber-500 shrink-0"></i>
+                        </div>
+                        <div class="mt-2 flex items-baseline justify-between">
+                            <span class="text-lg font-extrabold text-cyan-600">${pr.weight} <small class="text-xs font-semibold text-slate-400">kg</small></span>
+                            <span class="text-[11px] font-medium text-slate-500">${pr.sets}×${pr.reps}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Geçmiş listesi (filtreli)
+            const filterText = (document.getElementById('pr-filter-input').value || '').toLowerCase();
+            const filteredLogs = appState.weightLogs.filter(l => l.exercise.toLowerCase().includes(filterText));
+
+            const historyList = document.getElementById('pr-history-list');
+            if (filteredLogs.length === 0) {
+                historyList.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Eşleşen kayıt bulunamadı.</p>`;
+            } else {
+                historyList.innerHTML = filteredLogs.map(log => {
+                    const isBest = prMap[log.exercise] && prMap[log.exercise].id === log.id;
+                    return `
+                        <div class="bg-white px-3.5 py-2.5 rounded-xl border border-slate-100 shadow-xs flex items-center justify-between">
+                            <div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-bold text-xs text-slate-900">${log.exercise}</span>
+                                    ${isBest ? '<span class="text-[10px] font-bold px-1.5 py-0.2 bg-amber-100 text-amber-700 rounded">PR</span>' : ''}
+                                </div>
+                                <span class="text-[11px] text-slate-400">${log.date} • ${log.sets} Set × ${log.reps} Tekrar</span>
+                            </div>
+                            <div class="flex items-center gap-2.5">
+                                <span class="font-extrabold text-sm text-cyan-700">${log.weight} kg</span>
+                                <button onclick="deleteWeightLog('${log.id}')" class="p-1 text-slate-400 hover:text-rose-500 transition">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            lucide.createIcons();
+        }
+
+        // ==========================================
+        // 3. VÜCUT & ÖLÇÜ TAKİBİ İŞLEMLERİ
+        // ==========================================
+        function saveBodyMeasurement() {
+            const weight = parseFloat(document.getElementById('body-weight-input').value);
+            if (isNaN(weight) || weight <= 0) return showToast('Lütfen geçerli bir kilo değeri girin', 'error');
+
+            const fat = parseFloat(document.getElementById('body-fat-input').value) || null;
+            const arm = parseFloat(document.getElementById('body-arm-input').value) || null;
+            const chest = parseFloat(document.getElementById('body-chest-input').value) || null;
+            const waist = parseFloat(document.getElementById('body-waist-input').value) || null;
+            const leg = parseFloat(document.getElementById('body-leg-input').value) || null;
+
+            const shortDate = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+            appState.bodyLogs.push({
+                id: 'b_' + Date.now(),
+                weight, fat, chest, waist, arm, leg,
+                date: shortDate
+            });
+
+            ['body-weight-input', 'body-fat-input', 'body-arm-input', 'body-chest-input', 'body-waist-input', 'body-leg-input'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+
+            saveState();
+            renderBodyTab();
+            showToast('Vücut ölçülerin kaydedildi!');
+        }
+
+        function deleteBodyMeasurement(id) {
+            appState.bodyLogs = appState.bodyLogs.filter(b => b.id !== id);
+            saveState();
+            renderBodyTab();
+            showToast('Ölçü kaydı silindi');
+        }
+
+        function renderBodyTab() {
+            const logs = appState.bodyLogs;
+            const latest = logs[logs.length - 1];
+            const prev = logs.length > 1 ? logs[logs.length - 2] : null;
+
+            if (latest) {
+                document.getElementById('stat-current-weight').textContent = latest.weight;
+                document.getElementById('stat-current-fat').textContent = latest.fat ? latest.fat : '--';
+                document.getElementById('stat-waist-arm').textContent = `${latest.waist || '--'} / ${latest.arm || '--'}`;
+
+                if (prev) {
+                    const diff = (latest.weight - prev.weight).toFixed(1);
+                    const sign = diff > 0 ? '+' : '';
+                    document.getElementById('stat-weight-diff').textContent = `${sign}${diff} kg (önceki)`;
+                } else {
+                    document.getElementById('stat-weight-diff').textContent = 'Başlangıç kaydı';
+                }
+            } else {
+                document.getElementById('stat-current-weight').textContent = '--';
+                document.getElementById('stat-current-fat').textContent = '--';
+                document.getElementById('stat-waist-arm').textContent = '-- / --';
+                document.getElementById('stat-weight-diff').textContent = 'Kayıt yok';
+            }
+
+            // Trend grafiği (Son 7 kayıt)
+            const chartEl = document.getElementById('weight-trend-chart');
+            const recent = logs.slice(-7);
+            if (recent.length === 0) {
+                chartEl.innerHTML = `<p class="w-full text-center text-xs text-slate-400 self-center">Grafik için kilo ölçümü ekleyin</p>`;
+            } else {
+                const weights = recent.map(r => r.weight);
+                const minW = Math.min(...weights) - 2;
+                const maxW = Math.max(...weights) + 2;
+                const range = Math.max(1, maxW - minW);
+
+                chartEl.innerHTML = recent.map(item => {
+                    const heightPct = Math.max(20, Math.round(((item.weight - minW) / range) * 85));
+                    return `
+                        <div class="flex-1 flex flex-col items-center justify-end h-full gap-1">
+                            <span class="text-[10px] font-bold text-cyan-700">${item.weight}</span>
+                            <div class="w-full max-w-[28px] bg-gradient-to-t from-cyan-500 to-teal-400 rounded-t-lg transition-all duration-300" style="height: ${heightPct}%"></div>
+                            <span class="text-[9px] text-slate-400 font-medium truncate">${item.date}</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Ölçü geçmişi listesi (en yeniden eskiye)
+            const historyEl = document.getElementById('body-history-list');
+            if (logs.length === 0) {
+                historyEl.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">Henüz vücut ölçüsü girilmedi.</p>`;
+            } else {
+                historyEl.innerHTML = [...logs].reverse().map(b => `
+                    <div class="bg-white p-3.5 rounded-2xl border border-cyan-100 shadow-xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold px-2 py-0.5 rounded-md bg-cyan-50 text-cyan-700">${b.date}</span>
+                                <span class="text-sm font-extrabold text-slate-900">${b.weight} kg</span>
+                                ${b.fat ? `<span class="text-xs font-semibold text-teal-600">• %${b.fat} Yağ</span>` : ''}
+                            </div>
+                            <button onclick="deleteBodyMeasurement('${b.id}')" class="p-1 text-slate-400 hover:text-rose-500 transition">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-4 gap-1.5 pt-1 border-t border-slate-50 text-[11px] text-slate-600">
+                            <div><span class="text-slate-400">Göğüs:</span> <strong>${b.chest || '-'}</strong></div>
+                            <div><span class="text-slate-400">Bel:</span> <strong>${b.waist || '-'}</strong></div>
+                            <div><span class="text-slate-400">Kol:</span> <strong>${b.arm || '-'}</strong></div>
+                            <div><span class="text-slate-400">Bacak:</span> <strong>${b.leg || '-'}</strong></div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            lucide.createIcons();
+        }
+
+        // ==========================================
+        // 4. AI PT KOÇ SOHBET ASİSTANI
+        // ==========================================
+        function updateAiKeyBadge() {
+            const key = localStorage.getItem(AI_KEY_STORAGE);
+            const badge = document.getElementById('ai-key-status-badge');
+            const indicator = document.getElementById('ai-mode-indicator');
+            if (key && key.trim().length > 10) {
+                badge.textContent = 'Gemini Aktif';
+                if (indicator) indicator.textContent = 'Gemini AI Canlı Bağlantı Aktif';
+            } else {
+                badge.textContent = 'AI Ayar';
+                if (indicator) indicator.textContent = 'Dahili Akıllı Koç Modu Aktif';
+            }
+        }
+
+        function openAiKeyModal() {
+            document.getElementById('gemini-api-key-input').value = localStorage.getItem(AI_KEY_STORAGE) || '';
+            openModal('ai-key-modal');
+        }
+
+        function saveAiKey() {
+            const val = document.getElementById('gemini-api-key-input').value.trim();
+            if (val) {
+                localStorage.setItem(AI_KEY_STORAGE, val);
+                showToast('Gemini API anahtarı kaydedildi');
+            } else {
+                localStorage.removeItem(AI_KEY_STORAGE);
+                showToast('Dahili koç moduna geçildi');
+            }
+            updateAiKeyBadge();
+            closeModal('ai-key-modal');
+        }
+
+        function clearAiKey() {
+            localStorage.removeItem(AI_KEY_STORAGE);
+            document.getElementById('gemini-api-key-input').value = '';
+            updateAiKeyBadge();
+            closeModal('ai-key-modal');
+            showToast('API anahtarı temizlendi');
+        }
+
+        function renderAiChat() {
+            const chatBox = document.getElementById('ai-chat-messages');
+            chatBox.innerHTML = appState.aiMessages.map(msg => {
+                const isUser = msg.role === 'user';
+                return `
+                    <div class="flex ${isUser ? 'justify-end' : 'justify-start'} ai-msg-enter">
+                        <div class="max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed shadow-xs ${
+                            isUser 
+                            ? 'bg-gradient-to-r from-cyan-600 to-teal-600 text-white rounded-br-sm' 
+                            : 'bg-white border border-cyan-100 text-slate-800 rounded-bl-sm'
+                        }">
+                            ${msg.text.replace(/\n/g, '<br>')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function clearAiChat() {
+            appState.aiMessages = [
+                { role: 'ai', text: 'Sohbet temizlendi! Yeni hedefin veya sorun nedir?' }
+            ];
+            saveState();
+            renderAiChat();
+        }
+
+        function sendQuickPrompt(text) {
+            document.getElementById('ai-user-input').value = text;
+            handleAiSubmit(new Event('submit'));
+        }
+
+        async function handleAiSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('ai-user-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            appState.aiMessages.push({ role: 'user', text });
+            input.value = '';
+            saveState();
+            renderAiChat();
+
+            // Yükleniyor balonu ekle
+            const chatBox = document.getElementById('ai-chat-messages');
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'ai-typing-indicator';
+            typingDiv.className = 'flex justify-start ai-msg-enter';
+            typingDiv.innerHTML = `<div class="bg-white border border-cyan-100 text-cyan-600 rounded-2xl px-3.5 py-2 text-xs font-medium">Koç düşünüyor...</div>`;
+            chatBox.appendChild(typingDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            const apiKey = localStorage.getItem(AI_KEY_STORAGE);
+            let replyText = '';
+
+            if (apiKey && apiKey.length > 10) {
+                try {
+                    const currentDay = appState.schedule[appState.selectedDay];
+                    const contextPrompt = `Sen 'Testo Fit' uygulamasının uzman Türk fitness ve vücut geliştirme koçusun. Kısa, motive edici, bilimsel ve maddeler halinde Türkçe cevap ver. Kullanıcının bugünkü antrenmanı: ${currentDay.focus} (${currentDay.exercises.map(x => x.name).join(', ')}). Kullanıcının sorusu: ${text}`;
+                    
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: contextPrompt }] }]
+                        })
+                    });
+                    const data = await res.json();
+                    replyText = data?.candidates?.[0]?.content?.parts?.[0]?.text || generateSmartLocalCoachReply(text);
+                } catch (err) {
+                    replyText = generateSmartLocalCoachReply(text);
+                }
+            } else {
+                await new Promise(r => setTimeout(r, 450));
+                replyText = generateSmartLocalCoachReply(text);
+            }
+
+            const indicator = document.getElementById('ai-typing-indicator');
+            if (indicator) indicator.remove();
+
+            appState.aiMessages.push({ role: 'ai', text: replyText });
+            saveState();
+            renderAiChat();
+        }
+
+        function generateSmartLocalCoachReply(query) {
+            const q = query.toLowerCase();
+            const currentDay = appState.schedule[appState.selectedDay];
+            const latestBody = appState.bodyLogs[appState.bodyLogs.length - 1];
+            const weightKg = latestBody ? latestBody.weight : 78;
+
+            if (q.includes('bench') || q.includes('göğüs') || q.includes('ağırlık')) {
+                return `💪 <strong>Bench Press & Güç Artışı Taktikleri:</strong>\n• <strong>Progressive Overload:</strong> Mevcut ağırlığınla tüm setlerde üst tekrar sınırına (örn. 10 tekrar) ulaştığında bir sonraki antrenmanda +2.5 kg ekle.\n• <strong>Form & Kurulum:</strong> Kürek kemiklerini sehpaya kilitle, ayaklarını yere sağlam bas ve barı göğüs ucuna kontrollü indir.\n• <strong>Destek Hareketler:</strong> Triceps (arka kol) ve ön omuz gücünü artırmak kilitleme (lockout) aşamasını hızlandırır.`;
+            }
+            if (q.includes('bulk') || q.includes('kilo al') || q.includes('kas') || q.includes('beslenme')) {
+                const protein = Math.round(weightKg * 2);
+                const cals = Math.round(weightKg * 34);
+                return `🥩 <strong>Temiz Kas Kazanımı (Lean Bulk) Planı (${weightKg} kg için):</strong>\n• <strong>Günlük Kalori Hedefi:</strong> ~${cals} kcal (+300 kcal kalori fazlası)\n• <strong>Protein:</strong> ${protein}g (Tavuk, hindi, yumurta, kırmızı et, whey)\n• <strong>Karbonhidrat:</strong> Antrenman öncesi ve sonrası pirinç, yulaf, patates ile glikojen depolarını doldur.\n• <strong>Su & Uyku:</strong> Günde en az 3 litre su ve 7.5-8 saat kaliteli uyku büyüme hormonunu maksimize eder.`;
+            }
+            if (q.includes('definasyon') || q.includes('yağ') || q.includes('kardiyo')) {
+                const protein = Math.round(weightKg * 2.2);
+                const cals = Math.round(weightKg * 26);
+                return `🔥 <strong>Definasyon & Yağ Yakımı Stratejisi (${weightKg} kg için):</strong>\n• <strong>Kalori Açığı:</strong> ~${cals} kcal (Kas kaybını önlemek için proteini yüksek tut: ${protein}g/gün).\n• <strong>Ağırlık Antrenmanı:</strong> Ağır kaldırmaya devam et; ağırlıkları düşürmek kas kaybına yol açar.\n• <strong>Kardiyo:</strong> Antrenman sonuna 20-25 dk eğimli yürüyüş (Zone 2) veya günlük 8.000-10.000 adım ekle.`;
+            }
+            if (q.includes('analiz') || q.includes('program')) {
+                const exCount = currentDay.exercises.length;
+                if (exCount === 0) {
+                    return `📋 Bugün (${currentDay.focus}) programında hareket görünmüyor. Aktif dinlenme olarak esneme ve hafif yürüyüş yapabilir ya da Şablonlar bölümünden yeni bir split yükleyebilirsin!`;
+                }
+                return `📋 <strong>Bugünkü Program Analizi (${currentDay.focus}):</strong>\n• Toplam <strong>${exCount} hareket</strong> planlanmış durumda.\n• İlk 1-2 bileşik harekette (Compound) en yüksek enerjini kullanıp ağırlık artırmaya odaklan.\n• İzole hareketlerde ise 60-90 saniye dinlenme süresiyle kas içi yanmayı (pump) hedefle.`;
+            }
+            return `Harika bir nokta! Hedefine ulaşmak için antrenman şiddetini (Progressive Overload) her hafta küçük adımlarla artırmayı ve <strong>Ağırlık / PR</strong> sekmesinden kayıt tutmayı unutma. Belirli bir hareket veya makro hesabı için bana detay verebilirsin!`;
+        }
+
+        // ==========================================
+        // MODAL & YEDEKLEME YARDIMCILARI
+        // ==========================================
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function exportBackupJson() {
+            try {
+                const jsonStr = JSON.stringify(appState);
+                const temp = document.createElement('textarea');
+                temp.value = jsonStr;
+                document.body.appendChild(temp);
+                temp.select();
+                document.execCommand('copy');
+                document.body.removeChild(temp);
+                showToast('Tüm verileriniz JSON olarak panoya kopyalandı!');
+            } catch (e) {
+                showToast('Kopyalama başarısız oldu', 'error');
+            }
+        }
+
+        function importBackupJson() {
+            const raw = document.getElementById('import-json-area').value.trim();
+            if (!raw) return showToast('Lütfen yedek kodunu yapıştırın', 'error');
+            try {
+                const parsed = JSON.parse(raw);
+                if (!parsed.schedule || !parsed.weightLogs) throw new Error('Geçersiz format');
+                appState = parsed;
+                saveState();
+                renderWorkoutTab();
+                renderWeightsTab();
+                renderBodyTab();
+                closeModal('settings-modal');
+                showToast('Yedek başarıyla geri yüklendi!');
+            } catch (e) {
+                showToast('Geçersiz JSON yedek formatı', 'error');
+            }
+        }
+
+        function resetAllAppData() {
+            appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+            saveState();
+            renderWorkoutTab();
+            renderWeightsTab();
+            renderBodyTab();
+            renderAiChat();
+            closeModal('settings-modal');
+            showToast('Uygulama varsayılan verilere sıfırlandı');
+        }
+
+        // Uygulama Başlatma
+        document.addEventListener('DOMContentLoaded', () => {
+            updateAiKeyBadge();
+            renderWorkoutTab();
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
